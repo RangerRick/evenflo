@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.raccoonfink</groupId>
+  <groupId>com.raccoonfink.evenflo</groupId>
   <artifactId>evenflo-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>EvenFlo</name>
   <packaging>pom</packaging>
   <properties>
+    <karafVersion>4.4.3</karafVersion>
+    <skipOpennmsBuild>false</skipOpennmsBuild>
+
+    <!-- used to build a subset of current OpenNMS develop in the `opennms/` directory -->
     <opennms.projects>:org.opennms.features.flows.api,:org.opennms.features.flows.classification.engine.api,:org.opennms.features.flows.classification.engine.impl,:org.opennms.features.flows.classification.persistence.api,:org.opennms.features.flows.classification.shell,:org.opennms.features.flows.elastic,:org.opennms.features.flows.processing,:org.opennms.features.telemetry.listeners,:org.opennms.features.telemetry.protocols.flows,:org.opennms.features.telemetry.protocols.netflow.adapter,:org.opennms.features.telemetry.protocols.netflow.parser,:org.opennms.features.telemetry.protocols.netflow.transport,:org.opennms.features.telemetry.protocols.sflow.adapter,:org.opennms.features.telemetry.protocols.sflow.parser</opennms.projects>
   </properties>
   <build>
@@ -14,8 +18,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>5.1.9</version>
-        <extensions>true</extensions>
         <configuration>
           <instructions>
             <Bundle-RequiredExecutionEnvironment>JavaSE-17</Bundle-RequiredExecutionEnvironment>
@@ -37,6 +39,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
+              <skip>${skipOpennmsBuild}</skip>
               <executable>${maven.home}/bin/mvn</executable>
               <arguments>
                 <argument>-DskipTests=true</argument>
@@ -53,11 +56,51 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>5.1.9</version>
+          <extensions>true</extensions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.3.1</version>
+          <executions>
+            <execution>
+              <id>default-copy-resources</id>
+              <phase>generate-resources</phase>
+              <goals><goal>copy-resources</goal></goals>
+            </execution>
+          </executions>
+          <configuration>
+            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            <resources>
+              <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+              </resource>
+            </resources>
+            <encoding>UTF-8</encoding>
+            <escapeString>\</escapeString>
+            <nonFilteredFileExtensions>
+              <nonFilteredFileExtension>swp</nonFilteredFileExtension>
+            </nonFilteredFileExtensions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
-  <!--
   <modules>
+    <module>features</module>
   </modules>
-  -->
   <dependencies>
     <!--
     <dependency>
