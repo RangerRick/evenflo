@@ -1,0 +1,3 @@
+[submodule "opennms"]
+	path = opennms
+	url = https://github.com/RangerRick/opennms.git
